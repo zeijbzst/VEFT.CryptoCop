@@ -27,10 +27,11 @@ namespace Cryptocop.Software.API.Services.Implementations
 
         public async Task AddCartItem(string email, ShoppingCartItemInputModel shoppingCartItem)
         {
-            var response = await _httpClient.GetAsync($"v1/assets/{shoppingCartItem.ProductIdentifer}?fields=id,name,slug,symbol,metrics/market_data/price_usd");
+            var response = await _httpClient.GetAsync($"v1/assets/{shoppingCartItem.ProductIdentifer}/metrics/market-data?fields=market_data/price_usd");
             response.EnsureSuccessStatusCode();
             var crypto = await HttpResponseMessageExtensions.DeserializeJsonToObject<CryptoCurrencyDto>(response);
-            return _shoppingCartRepository.AddCartItem()
+            _shoppingCartRepository.AddCartItem(email, shoppingCartItem, crypto.PriceInUsd);
+            return;
         }
 
         public void RemoveCartItem(string email, int id)

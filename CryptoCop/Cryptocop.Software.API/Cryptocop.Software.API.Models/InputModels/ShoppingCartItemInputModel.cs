@@ -9,6 +9,6 @@ namespace Cryptocop.Software.API.Models.InputModels
 
         [Required(ErrorMessage = "Need to provide quantity.")]
         [Range(0.01, double.MaxValue)]
-        public double? Quantity { get; set; }
+        public float? Quantity { get; set; }
     }
 }

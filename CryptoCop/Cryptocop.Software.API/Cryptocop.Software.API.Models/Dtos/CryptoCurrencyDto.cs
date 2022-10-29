@@ -11,7 +11,7 @@ namespace Cryptocop.Software.API.Models.Dtos
         public string Slug { get; set; }
 
         [JsonProperty(PropertyName = "price_usd")]
-        public double PriceInUsd { get; set; }
+        public float PriceInUsd { get; set; }
 
         [JsonProperty(PropertyName = "project_details")]
         public string? ProjectDetails { get; set; } = string.Empty;
