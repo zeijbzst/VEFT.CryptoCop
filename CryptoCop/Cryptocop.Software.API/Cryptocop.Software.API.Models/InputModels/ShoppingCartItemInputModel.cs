@@ -4,11 +4,10 @@ namespace Cryptocop.Software.API.Models.InputModels
 {
     public class ShoppingCartItemInputModel
     {
-        [Required(ErrorMessage = "Product identifier is required.")]
-        public string? ProductIdentifer { get; set; } = string.Empty;
+        public string? ProductIdentifier { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Need to provide quantity.")]
         [Range(0.01, double.MaxValue)]
-        public float? Quantity { get; set; }
+        public float Quantity { get; set; }
     }
 }

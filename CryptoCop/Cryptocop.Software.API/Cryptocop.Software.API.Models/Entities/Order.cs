@@ -16,7 +16,7 @@ namespace Cryptocop.Software.API.Models.Entities
         public string City { get; set; }
         public string CardHolderName { get; set; }
         public string MaskedCreditCard { get; set; }
-        public DateTime OrderDate { get; set; } = DateTime.Now;
+        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
         public double TotalPrice { get; set; }
 
         // Navigation properties

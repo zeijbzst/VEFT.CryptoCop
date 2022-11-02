@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Cryptocop.Software.API.Models.Dtos;
+using Cryptocop.Software.API.Models.Entities;
 using Cryptocop.Software.API.Models.Exceptions;
 using Cryptocop.Software.API.Models.InputModels;
 using Cryptocop.Software.API.Repositories.Data;
@@ -18,30 +20,69 @@ namespace Cryptocop.Software.API.Repositories.Implementations
 
         public IEnumerable<ShoppingCartItemDto> GetCartItems(string email)
         {
-            throw new System.NotImplementedException();
+            return _dbContext
+                .ShoppingCartItems
+                .Where(i => i.ShoppingCart.User.Email == email)
+                .Select(i => new ShoppingCartItemDto
+                {
+                    Id = i.Id,
+                    ProductIdentifier = i.ProductIdentifier,
+                    Quantity = i.Quantity,
+                    UnitPrice = i.UnitPrice,
+                    TotalPrice = i.Quantity * i.UnitPrice
+                }).ToList();
         }
 
-        public void AddCartItem(string email, ShoppingCartItemInputModel shoppingCartItemItem, float priceInUsd)
+        public void AddCartItem(string email, ShoppingCartItemInputModel shoppingCartItem, float priceInUsd)
         {
-            var user = _dbContext.Users.Where(u => u.Email == email).FirstOrDefault();
-            if (user == null) { throw new UserNotFoundException($"User with email {email} was not found."); }
-            
+            var shoppingCart = _dbContext
+                .ShoppingCarts
+                .Where(s => s.User.Email == email)
+                .FirstOrDefault();
+
+            var cartItemEntity = new ShoppingCartItem
+            {
+                ShoppingCartId = shoppingCart.Id,
+                ProductIdentifier = shoppingCartItem.ProductIdentifier,
+                Quantity = shoppingCartItem.Quantity,
+                UnitPrice = priceInUsd
+            };
+
+            _dbContext.Add(cartItemEntity);
+            _dbContext.SaveChanges();
 
         }
 
         public void RemoveCartItem(string email, int id)
         {
-            throw new System.NotImplementedException();
+            var item = _dbContext
+                .ShoppingCartItems
+                .Where(i => i.ShoppingCart.User.Email == email && i.Id == id)
+                .FirstOrDefault();
+            if (item == null) { return; }
+            _dbContext.Remove(item);
+            _dbContext.SaveChanges();
         }
 
         public void UpdateCartItemQuantity(string email, int id, float quantity)
         {
-            throw new System.NotImplementedException();
+            var item = _dbContext
+                .ShoppingCartItems
+                .Where(i => i.ShoppingCart.User.Email == email && i.Id == id)
+                .FirstOrDefault();
+            if (item == null) { throw new ResourceNotFoundException($"Cart item with id {id} does not belong to you."); }
+
+            item.Quantity = (double)quantity;
+            _dbContext.SaveChanges();
         }
 
         public void ClearCart(string email)
         {
-            throw new System.NotImplementedException();
+            var items = _dbContext
+                .ShoppingCartItems
+                .Where(i => i.ShoppingCart.User.Email == email);
+            _dbContext.RemoveRange(items);
+            _dbContext.SaveChanges();
         }
 
         public void DeleteCart(string email)

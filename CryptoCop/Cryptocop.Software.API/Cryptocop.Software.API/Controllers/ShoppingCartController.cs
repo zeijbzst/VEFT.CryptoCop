@@ -1,42 +1,58 @@
 ﻿using Cryptocop.Software.API.Models.InputModels;
+using Cryptocop.Software.API.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Cryptocop.Software.API.Controllers
 {
+    [Authorize]
     [Route("api/cart")]
     [ApiController]
     public class ShoppingCartController : ControllerBase
     {
+        private readonly IShoppingCartService _shoppingCartService;
+
+        public ShoppingCartController(IShoppingCartService shoppingCartService)
+        {
+            _shoppingCartService = shoppingCartService;
+        }
+
         [HttpGet]
         public IActionResult GetAllItemsInShoppingCart()
         {
-            throw new NotImplementedException();
+            var items = _shoppingCartService.GetCartItems(User?.Identity?.Name);
+            return Ok(items);
         }
 
         [HttpPost]
-        public IActionResult AddItemToShoppingCart([FromBody]ShoppingCartItemInputModel item)
+        public async Task<IActionResult> AddItemToShoppingCart([FromBody]ShoppingCartItemInputModel item)
         {
-            throw new NotImplementedException();
+            await _shoppingCartService.AddCartItem(User.Identity?.Name, item);
+            return NoContent();
         }
 
         [HttpDelete]
-        [Route("{id}")]
-        public IActionResult RemoveItemFromShoppingCart([FromBody] ShoppingCartItemInputModel item)
+        [Route("{id:int}")]
+        public IActionResult RemoveItemFromShoppingCart(int id)
         {
-            throw new NotImplementedException();
+            _shoppingCartService.RemoveCartItem(User.Identity?.Name, id);
+            return NoContent();
         }
 
         [HttpPatch]
-        [Route("{id}")]
-        public IActionResult UpdateItemQuantity([FromBody] ShoppingCartItemInputModel item)
+        [Route("{id:int}")]
+        public IActionResult UpdateItemQuantity([FromBody] ShoppingCartItemInputModel item, int id)
         {
-            throw new NotImplementedException();
+            _shoppingCartService.UpdateCartItemQuantity(User.Identity?.Name, id, item.Quantity);
+            return NoContent();
         }
 
         [HttpDelete]
-        public IActionResult ClearShoppingCart([FromBody] ShoppingCartItemInputModel item)
+        public IActionResult ClearShoppingCart()
         {
-            throw new NotImplementedException();
+            _shoppingCartService.ClearCart(User.Identity?.Name);
+            return NoContent();
         }
 
 

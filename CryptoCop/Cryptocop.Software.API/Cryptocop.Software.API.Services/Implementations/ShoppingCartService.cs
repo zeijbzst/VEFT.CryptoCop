@@ -22,31 +22,31 @@ namespace Cryptocop.Software.API.Services.Implementations
 
         public IEnumerable<ShoppingCartItemDto> GetCartItems(string email)
         {
-            throw new System.NotImplementedException();
+            return _shoppingCartRepository.GetCartItems(email);
         }
 
         public async Task AddCartItem(string email, ShoppingCartItemInputModel shoppingCartItem)
         {
-            var response = await _httpClient.GetAsync($"v1/assets/{shoppingCartItem.ProductIdentifer}/metrics/market-data?fields=market_data/price_usd");
+            var response = await _httpClient.GetAsync($"v1/assets/{shoppingCartItem.ProductIdentifier}/metrics/market-data?fields=market_data/price_usd");
             response.EnsureSuccessStatusCode();
-            var crypto = await HttpResponseMessageExtensions.DeserializeJsonToObject<CryptoCurrencyDto>(response);
+            var crypto = await HttpResponseMessageExtensions.DeserializeJsonToObject<CryptoCurrencyDto>(response, true);
             _shoppingCartRepository.AddCartItem(email, shoppingCartItem, crypto.PriceInUsd);
             return;
         }
 
         public void RemoveCartItem(string email, int id)
         {
-            throw new System.NotImplementedException();
+            _shoppingCartRepository.RemoveCartItem(email, id);
         }
 
         public void UpdateCartItemQuantity(string email, int id, float quantity)
         {
-            throw new System.NotImplementedException();
+            _shoppingCartRepository.UpdateCartItemQuantity(email, id, quantity);
         }
 
         public void ClearCart(string email)
         {
-            throw new System.NotImplementedException();
+            _shoppingCartRepository.ClearCart(email);
         }
     }
 }

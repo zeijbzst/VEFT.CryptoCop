@@ -7,6 +7,7 @@ using Cryptocop.Software.API.Models.Entities;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Text;
 using System.Linq;
+using Cryptocop.Software.API.Models.Exceptions;
 
 namespace Cryptocop.Software.API.Repositories.Implementations
 {
@@ -25,23 +26,34 @@ namespace Cryptocop.Software.API.Repositories.Implementations
 
         public UserDto CreateUser(RegisterInputModel inputModel)
         {
-            var entity = new User
+            var user = _dbContext.Users.Where(u => u.Email == inputModel.Email).FirstOrDefault();
+            if (user != null) { throw new UserException($"User with email {user.Email} already exists."); }
+
+            var userEntity = new User
             {
                 FullName = inputModel.FullName,
                 Email = inputModel.Email,
                 HashedPassword = HashPassword(inputModel.Password)
             };
+            _dbContext.Add(userEntity);
+            _dbContext.SaveChanges();
 
-            _dbContext.Add(entity);
+            // All users must have a shopping cart.
+            var shoppingCart = new ShoppingCart
+            {
+                UserId = userEntity.Id
+            };
+            _dbContext.Add(shoppingCart);
+
             _dbContext.SaveChanges();
 
             var token = _tokenRepository.CreateNewToken();
 
             return new UserDto
             {
-                Id = entity.Id,
-                FullName = entity.FullName,
-                Email = entity.Email,
+                Id = userEntity.Id,
+                FullName = userEntity.FullName,
+                Email = userEntity.Email,
                 TokenId = token.Id
             };
 
