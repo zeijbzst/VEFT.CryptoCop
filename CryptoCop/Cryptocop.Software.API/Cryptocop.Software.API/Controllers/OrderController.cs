@@ -20,7 +20,8 @@ namespace Cryptocop.Software.API.Controllers
         [HttpGet]
         public IActionResult GetAllOrders()
         {
-            throw new NotImplementedException();
+            var orders = _orderService.GetOrders(User.Identity?.Name);
+            return Ok(orders);
         }
 
         [HttpPost]

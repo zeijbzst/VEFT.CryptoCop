@@ -38,8 +38,10 @@ namespace Cryptocop.Software.API.Services.Implementations
 
         public void Dispose()
         {
-            // TODO: Dispose the connection and channel
-            throw new NotImplementedException();
+            GC.SuppressFinalize(this);
+
+            _channel.Dispose();
+            _connection.Dispose();
         }
     }
 }

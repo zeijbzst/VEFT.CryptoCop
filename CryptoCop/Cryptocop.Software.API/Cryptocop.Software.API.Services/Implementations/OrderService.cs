@@ -19,7 +19,7 @@ namespace Cryptocop.Software.API.Services.Implementations
 
         public IEnumerable<OrderDto> GetOrders(string email)
         {
-            throw new System.NotImplementedException();
+            return _orderRepository.GetOrders(email);
         }
 
         public void CreateNewOrder(string email, OrderInputModel order)

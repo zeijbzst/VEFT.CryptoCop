@@ -21,7 +21,32 @@ namespace Cryptocop.Software.API.Repositories.Implementations
 
         public IEnumerable<OrderDto> GetOrders(string email)
         {
-            throw new NotImplementedException();
+            return _dbContext
+                .Orders
+                .Where(o => o.Email == email)
+                .Select(o => new OrderDto
+                {
+                    Id = o.Id,
+                    Email = email,
+                    FullName = o.FullName,
+                    StreetName = o.StreetName,
+                    HouseNumber = o.HouseNumber,
+                    ZipCode = o.ZipCode,
+                    Country = o.Country,
+                    City = o.City,
+                    CardholderName = o.CardHolderName,
+                    CreditCard = o.MaskedCreditCard,
+                    OrderDate = o.OrderDate.ToString(),
+                    TotalPrice = o.TotalPrice,
+                    OrderItems = _dbContext.OrderItems.Where(i => i.OrderId == o.Id).Select(i => new OrderItemDto
+                    {
+                        Id = i.Id,
+                        ProductIdentifier = i.ProductIdentifier,
+                        Quantity = i.Quantity,
+                        UnitPrice = i.UnitPrice,
+                        TotalPrice = i.TotalPrice,
+                    }).ToList()
+                });
         }
 
         public OrderDto CreateNewOrder(string email, OrderInputModel order)
@@ -35,24 +60,13 @@ namespace Cryptocop.Software.API.Repositories.Implementations
                 .FirstOrDefault();
 
             var shoppingCartItems = _dbContext
-                .ShoppingCarts
-                .Where(c => c.UserId == userInfo.Id)
-                .Include(c => c.ShoppingCartItems
-                        .Where(i => i.ShoppingCartId == c.Id))
-                .Select(c => c.ShoppingCartItems.Select(i => new ShoppingCartItemDto
-                {
-                    Id = i.Id,
-                    ProductIdentifier = i.ProductIdentifier,
-                    Quantity = i.Quantity,
-                    UnitPrice = i.UnitPrice,
-                    TotalPrice = i.Quantity * i.UnitPrice
-                })).ToList();
-
-            double totalPrice = 0;
-            foreach(var shoppingCartItem in shoppingCartItems)
-            {
-                totalPrice += shoppingCartItem.Select(s => s.UnitPrice).FirstOrDefault() * shoppingCartItem.Select(s => s.Quantity).FirstOrDefault();
-            }
+                .ShoppingCartItems
+                .Where(i => i.ShoppingCartId == _dbContext
+                    .ShoppingCarts
+                    .Where(s => s.UserId == userInfo.Id)
+                    .Select(s => s.Id)
+                    .FirstOrDefault())
+                .ToList();
 
             var orderEntity = new Order
             {
@@ -65,14 +79,26 @@ namespace Cryptocop.Software.API.Repositories.Implementations
                 City = userInfo.Addresses.Select(a => a.City).FirstOrDefault(),
                 CardHolderName = userInfo.PaymentCards.Select(p => p.CardHolderName).FirstOrDefault(),
                 MaskedCreditCard = MaskCredit(userInfo.PaymentCards.Select(p => p.CardNumber).FirstOrDefault()),
-                TotalPrice = shoppingCartItems.Sum(s => s.Select(s => s.UnitPrice).FirstOrDefault() * s.Select(s => s.Quantity).FirstOrDefault())
+                TotalPrice = shoppingCartItems.Sum(s => s.UnitPrice * s.Quantity)
             };
-
 
             _dbContext.Add(orderEntity);
             _dbContext.SaveChanges();
 
-            
+            var orderItems = shoppingCartItems
+                .Select(i => new OrderItem
+                {
+                    OrderId = orderEntity.Id,
+                    ProductIdentifier = i.ProductIdentifier,
+                    Quantity = i.Quantity,
+                    UnitPrice = i.UnitPrice,
+                    TotalPrice = i.Quantity * i.UnitPrice,
+                }).ToList();
+
+            _dbContext.AddRange(orderItems);
+            _dbContext.RemoveRange(shoppingCartItems);
+
+            _dbContext.SaveChanges();
 
             return new OrderDto
             {
@@ -85,13 +111,17 @@ namespace Cryptocop.Software.API.Repositories.Implementations
                 Country = orderEntity.Country,
                 City = orderEntity.City,
                 CardholderName = orderEntity.CardHolderName,
-                CreditCard = _dbContext
-                    .Paymentcards
-                    .Where(c => c.Id == order.PaymentCardId)
-                    .Select(c => c.CardNumber)
-                    .FirstOrDefault(),
+                CreditCard = userInfo.PaymentCards.Select(p => p.CardNumber).FirstOrDefault(),
                 OrderDate = orderEntity.OrderDate.ToString(),
                 TotalPrice = orderEntity.TotalPrice,
+                OrderItems = orderItems.Select(i => new OrderItemDto
+                {
+                    Id = i.Id,
+                    ProductIdentifier = i.ProductIdentifier,
+                    Quantity = i.Quantity,
+                    UnitPrice = i.UnitPrice,
+                    TotalPrice = i.TotalPrice,
+                }).ToList()
             };
         }
 
