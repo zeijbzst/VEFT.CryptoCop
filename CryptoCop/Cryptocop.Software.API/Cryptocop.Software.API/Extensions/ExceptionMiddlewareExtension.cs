@@ -26,6 +26,10 @@ namespace Cryptocop.Software.API.Extensions
                     {
                         statusCode = (int)HttpStatusCode.BadRequest;
                     }
+                    else if (exception is ResourceDoesNotBelongException)
+                    {
+                        statusCode = (int)HttpStatusCode.BadRequest;
+                    }
 
 
                     context.Response.ContentType = "application/json";

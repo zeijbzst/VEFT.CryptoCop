@@ -32,7 +32,7 @@ namespace Cryptocop.Software.API.Repositories.Implementations
             var userEntity = new User
             {
                 FullName = inputModel.FullName,
-                Email = inputModel.Email,
+                Email = inputModel.Email.ToLower().Trim(),
                 HashedPassword = HashPassword(inputModel.Password)
             };
             _dbContext.Add(userEntity);
@@ -62,7 +62,7 @@ namespace Cryptocop.Software.API.Repositories.Implementations
         public UserDto AuthenticateUser(LoginInputModel loginInputModel)
         {
             var user = _dbContext.Users.FirstOrDefault(u =>
-                u.Email == loginInputModel.Email &&
+                u.Email == loginInputModel.Email.ToLower().Trim() &&
                 u.HashedPassword == HashPassword(loginInputModel.Password));
             if (user == null) { return null; }
 

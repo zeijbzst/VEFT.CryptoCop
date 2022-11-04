@@ -28,7 +28,7 @@ namespace Cryptocop.Software.API.Controllers
         public IActionResult CreateNewOrder([FromBody] OrderInputModel order)
         {
             _orderService.CreateNewOrder(User.Identity?.Name, order);
-            return Ok();
+            return NoContent();
         }
     }
 }

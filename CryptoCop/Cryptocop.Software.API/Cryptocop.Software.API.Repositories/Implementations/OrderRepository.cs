@@ -60,8 +60,8 @@ namespace Cryptocop.Software.API.Repositories.Implementations
                 .Include(u => u.PaymentCards.Where(p => p.Id == order.PaymentCardId))
                 .FirstOrDefault();
 
-            if (userInfo.PaymentCards.Count() <= 0) { throw new ResourceNotFoundException($"No credit card with id {order.PaymentCardId} belongs to you."); }
-            if (userInfo.Addresses.Count() <= 0) { throw new ResourceNotFoundException($"No address with id {order.AddressId} belongs to you."); }
+            if (userInfo.PaymentCards.Count() <= 0) { throw new ResourceDoesNotBelongException($"No credit card with id {order.PaymentCardId} belongs to you."); }
+            if (userInfo.Addresses.Count() <= 0) { throw new ResourceDoesNotBelongException($"No address with id {order.AddressId} belongs to you."); }
 
             var shoppingCartItems = _dbContext
                 .ShoppingCartItems
@@ -72,7 +72,7 @@ namespace Cryptocop.Software.API.Repositories.Implementations
                     .FirstOrDefault())
                 .ToList();
 
-            if(shoppingCartItems.Count() <= 0) { throw new ResourceNotFoundException("You have no items in your shopping cart. Please add some and try again."); }
+            if(shoppingCartItems.Count() <= 0) { throw new ArgumentOutOfRangeException("You have no items in your shopping cart. Please add some and try again."); }
 
             var orderEntity = new Order
             {

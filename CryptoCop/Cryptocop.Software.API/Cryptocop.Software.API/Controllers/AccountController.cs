@@ -36,7 +36,7 @@ namespace Cryptocop.Software.API.Controllers
         public IActionResult SignIn([FromBody] LoginInputModel login)
         {
             var user = _accountService.AuthenticateUser(login);
-            if (user == null) { return Unauthorized("Invalid email or password."); }
+            if (user == null) { return Unauthorized("Invalid email or password. Passwords are case-sensitive."); }
             return Ok(_tokenService.GenerateJwtToken(user));
         }
 
