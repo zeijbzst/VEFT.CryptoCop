@@ -10,4 +10,4 @@ COPY . .
 
 ENV HOST rabbitmq
 
-CMD ["python", "./payment_service.py"]
+CMD ["python", "-u", "./payment_service.py"]

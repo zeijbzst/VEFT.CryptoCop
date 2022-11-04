@@ -26,7 +26,8 @@ namespace Cryptocop.Software.API.Controllers
         {
             var user = _accountService.CreateUser(newUser);
             if (user == null) { return Conflict($"User with that email already exists."); }
-            return Ok(_tokenService.GenerateJwtToken(user));
+            _tokenService.GenerateJwtToken(user);
+            return Ok();
         }
 
         [AllowAnonymous]
