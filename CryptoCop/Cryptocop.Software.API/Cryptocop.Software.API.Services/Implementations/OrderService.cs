@@ -10,11 +10,13 @@ namespace Cryptocop.Software.API.Services.Implementations
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IQueueService _queueService;
+        private readonly IShoppingCartRepository _cartRepository;
 
-        public OrderService(IOrderRepository orderRepository, IQueueService queueService)
+        public OrderService(IOrderRepository orderRepository, IQueueService queueService, IShoppingCartRepository cartRepository)
         {
             _orderRepository = orderRepository;
             _queueService = queueService;
+            _cartRepository = cartRepository;
         }
 
         public IEnumerable<OrderDto> GetOrders(string email)
@@ -25,7 +27,9 @@ namespace Cryptocop.Software.API.Services.Implementations
         public void CreateNewOrder(string email, OrderInputModel order)
         {
             var orderDto = _orderRepository.CreateNewOrder(email, order);
+            _cartRepository.ClearCart(email);
             _queueService.PublishMessage("create-order", orderDto);
+            
         }
     }
 }

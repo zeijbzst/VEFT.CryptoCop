@@ -1,0 +1,56 @@
+version: "3"
+
+services:
+  cryptocop-api:
+    build: ./Cryptocop.Software.API
+    container_name: "cryptocop-api"
+    environment:
+      "ASPNETCORE_ENVIRONMENT": "Production"
+    ports:
+      - "5000:5000"
+    networks:
+      - "cryptocop-network"
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "4369:4369"
+      - "5671:5671"
+      - "5672:5672"
+      - "25672:25672"
+      - "15671:15671"
+      - "15672:15672"
+    container_name: rabbitmq
+    networks:
+      - "cryptocop-network"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:15672"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  cryptocop-email:
+    build: ./cryptocop-emails
+    container_name: "cryptocop-email"
+    networks:
+      - "cryptocop-network"
+    restart: on-failure
+    depends_on:
+      - rabbitmq
+    links: 
+      - rabbitmq
+
+  cryptocop-payments:
+    build: ./cryptocop-payments
+    container_name: "cryptocop-payment"
+    networks:
+      - "cryptocop-network"
+    restart: on-failure
+    depends_on:
+      - rabbitmq
+    links: 
+      - rabbitmq
+
+networks:
+  cryptocop-network:
+    driver: bridge

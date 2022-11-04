@@ -1,3 +1,4 @@
+using System.Collections;
 using System.ComponentModel.DataAnnotations;
 
 namespace Cryptocop.Software.API.Models.InputModels

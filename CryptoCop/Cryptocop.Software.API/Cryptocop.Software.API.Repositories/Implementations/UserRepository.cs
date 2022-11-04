@@ -27,7 +27,7 @@ namespace Cryptocop.Software.API.Repositories.Implementations
         public UserDto CreateUser(RegisterInputModel inputModel)
         {
             var user = _dbContext.Users.Where(u => u.Email == inputModel.Email).FirstOrDefault();
-            if (user != null) { throw new UserException($"User with email {user.Email} already exists."); }
+            if (user != null) { return null; }
 
             var userEntity = new User
             {

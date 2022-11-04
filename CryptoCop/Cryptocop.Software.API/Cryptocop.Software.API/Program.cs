@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Cryptocop.Software.API.Extensions;
 using Cryptocop.Software.API.Middlewares;
 using Cryptocop.Software.API.Repositories.Data;
 using Cryptocop.Software.API.Repositories.Implementations;
@@ -87,6 +88,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.ConfigureExceptionHandler(); // Configures exception handler
 
 app.UseHttpsRedirection();
 

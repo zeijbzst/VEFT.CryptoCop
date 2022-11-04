@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Cryptocop.Software.API.Models.Dtos;
 using Cryptocop.Software.API.Models.Entities;
+using Cryptocop.Software.API.Models.Exceptions;
 using Cryptocop.Software.API.Models.InputModels;
 using Cryptocop.Software.API.Repositories.Data;
 using Cryptocop.Software.API.Repositories.Interfaces;
@@ -59,6 +60,9 @@ namespace Cryptocop.Software.API.Repositories.Implementations
                 .Include(u => u.PaymentCards.Where(p => p.Id == order.PaymentCardId))
                 .FirstOrDefault();
 
+            if (userInfo.PaymentCards.Count() <= 0) { throw new ResourceNotFoundException($"No credit card with id {order.PaymentCardId} belongs to you."); }
+            if (userInfo.Addresses.Count() <= 0) { throw new ResourceNotFoundException($"No address with id {order.AddressId} belongs to you."); }
+
             var shoppingCartItems = _dbContext
                 .ShoppingCartItems
                 .Where(i => i.ShoppingCartId == _dbContext
@@ -67,6 +71,8 @@ namespace Cryptocop.Software.API.Repositories.Implementations
                     .Select(s => s.Id)
                     .FirstOrDefault())
                 .ToList();
+
+            if(shoppingCartItems.Count() <= 0) { throw new ResourceNotFoundException("You have no items in your shopping cart. Please add some and try again."); }
 
             var orderEntity = new Order
             {
@@ -96,8 +102,6 @@ namespace Cryptocop.Software.API.Repositories.Implementations
                 }).ToList();
 
             _dbContext.AddRange(orderItems);
-            _dbContext.RemoveRange(shoppingCartItems);
-
             _dbContext.SaveChanges();
 
             return new OrderDto

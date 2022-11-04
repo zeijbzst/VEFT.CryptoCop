@@ -28,6 +28,12 @@ namespace Cryptocop.Software.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddItemToShoppingCart([FromBody]ShoppingCartItemInputModel item)
         {
+            var products = new List<string> {"eth", "ethereum", "btc", "bitcoin", "monero", "xmr", "tether", "usdt"};
+
+            // Make sure user is trying to buy a valid coin.
+            item.ProductIdentifier = item.ProductIdentifier.ToLower().Trim(); 
+            if (!products.Contains(item.ProductIdentifier)) { return BadRequest("You can only buy BTC, USDT, XMR or ETH from this market."); }
+            
             await _shoppingCartService.AddCartItem(User.Identity?.Name, item);
             return NoContent();
         }
