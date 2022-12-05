@@ -2,6 +2,7 @@
 using Cryptocop.Software.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace Cryptocop.Software.API.Controllers
 {
@@ -27,7 +28,7 @@ namespace Cryptocop.Software.API.Controllers
             var user = _accountService.CreateUser(newUser);
             if (user == null) { return Conflict($"User with that email already exists."); }
             _tokenService.GenerateJwtToken(user);
-            return Ok();
+            return StatusCode((int)HttpStatusCode.Created);
         }
 
         [AllowAnonymous]

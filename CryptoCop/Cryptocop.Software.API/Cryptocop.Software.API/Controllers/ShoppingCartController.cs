@@ -3,6 +3,7 @@ using Cryptocop.Software.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata;
+using System.Net;
 
 namespace Cryptocop.Software.API.Controllers
 {
@@ -35,7 +36,7 @@ namespace Cryptocop.Software.API.Controllers
             if (!products.Contains(item.ProductIdentifier)) { return BadRequest("You can only buy BTC, USDT, XMR or ETH from this market."); }
             
             await _shoppingCartService.AddCartItem(User.Identity?.Name, item);
-            return NoContent();
+            return StatusCode((int)HttpStatusCode.Created);
         }
 
         [HttpDelete]

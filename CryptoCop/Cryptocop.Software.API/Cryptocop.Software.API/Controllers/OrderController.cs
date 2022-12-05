@@ -2,6 +2,7 @@
 using Cryptocop.Software.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace Cryptocop.Software.API.Controllers
 {
@@ -28,7 +29,7 @@ namespace Cryptocop.Software.API.Controllers
         public IActionResult CreateNewOrder([FromBody] OrderInputModel order)
         {
             _orderService.CreateNewOrder(User.Identity?.Name, order);
-            return NoContent();
+            return StatusCode((int)HttpStatusCode.Created);
         }
     }
 }
